@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { PostgrestError } from '@supabase/supabase-js'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -37,8 +38,12 @@ export default function SignupPage() {
       if (authError) throw authError
 
       router.push('/login?message=Check your email to confirm your account')
-    } catch (error: any) {
-      setError(error?.message || 'An error occurred during signup')
+    } catch (error) {
+      if (error instanceof PostgrestError) {
+        setError(error.message)
+      } else {
+        setError('An error occurred during signup!')
+      }
     } finally {
       setLoading(false)
     }

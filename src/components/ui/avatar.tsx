@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-
+import Image from 'next/image'
 interface AvatarProps {
   uid: string | null
   url: string | null
@@ -48,7 +48,7 @@ export function Avatar({ uid, url, size, onUpload }: AvatarProps) {
   return (
     <div className="flex flex-col items-center">
       <div className="relative">
-        <img
+        <Image
           src={url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${uid}`}
           alt="Avatar"
           className="rounded-full"
