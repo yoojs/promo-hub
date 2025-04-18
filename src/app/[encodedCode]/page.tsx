@@ -4,7 +4,7 @@ import { decodeInviteData } from '@/utils/encoding';
 import { format } from 'date-fns';
 import { InviteForm } from './invite-form';
 
-export default async function InvitePage({ params }: { params: { encodedCode: string } }) {
+export default async function InvitePage({ params }: { params: Promise<{ encodedCode: string }> }) {
     const {encodedCode} = await params;
   const inviteData = decodeInviteData(encodedCode);
   if (!inviteData) return notFound();

@@ -20,33 +20,33 @@ export function EventList({ initialEvents }: EventListProps) {
     setIsModalOpen(true);
   };
 
-  const handleEditEvent = (event: Event) => {
-    setSelectedEvent(event);
-    setIsModalOpen(true);
-  };
+  // const handleEditEvent = (event: Event) => {
+  //   setSelectedEvent(event);
+  //   setIsModalOpen(true);
+  // };
 
-  const handleDeleteEvent = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
+  // const handleDeleteEvent = async (id: string) => {
+  //   if (!confirm('Are you sure you want to delete this event?')) return;
 
-    setLoading(true);
-    const supabase = createClient();
+  //   setLoading(true);
+  //   const supabase = createClient();
 
-    try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('id', id);
+  //   try {
+  //     const { error } = await supabase
+  //       .from('events')
+  //       .delete()
+  //       .eq('id', id);
 
-      if (error) throw error;
+  //     if (error) throw error;
 
-      setEvents(events.filter(event => event.id !== id));
-    } catch (error) {
-      console.error('Error deleting event:', error);
-      alert('Error deleting event');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setEvents(events.filter(event => event.id !== id));
+  //   } catch (error) {
+  //     console.error('Error deleting event:', error);
+  //     alert('Error deleting event');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleSaveEvent = async (eventData: Omit<Event, 'id' | 'created_at' | 'updated_at' | 'venue' | 'guests' | 'promoters'> & { promoters: string[] }) => {
     setLoading(true);
@@ -71,18 +71,7 @@ export function EventList({ initialEvents }: EventListProps) {
 
         if (error) throw error;
 
-        setEvents(events.map(event => 
-          event.id === selectedEvent.id 
-            ? { 
-                ...event, 
-                ...eventData,
-                guests,
-                promoters: eventData.promoters,
-                updated_at: new Date().toISOString(),
-                venue: venues.find(v => v.id === eventData.venue_id) || event.venue
-              }
-            : event
-        ));
+        
       } else {
         // Create new event
         const { data, error } = await supabase
@@ -124,7 +113,7 @@ export function EventList({ initialEvents }: EventListProps) {
         </button>
       </div>
 
-      <div className="bg-[#262b36]/80 backdrop-blur-sm rounded-xl overflow-hidden">
+      {/* <div className="bg-[#262b36]/80 backdrop-blur-sm rounded-xl overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/10">
@@ -179,7 +168,7 @@ export function EventList({ initialEvents }: EventListProps) {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
 
       <EventModal
         isOpen={isModalOpen}
