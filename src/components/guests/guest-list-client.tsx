@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { GuestModal } from './guest-modal';
-import { toast } from 'react-hot-toast';
+import { ToastContainer, toast } from 'react-toastify';
 import { checkInGuest } from '@/app/guestlists/[eventId]/actions';
 import { CSVImportButton } from '@/components/csv-import-button';
 import { useProfile } from '@/hooks/use-profile';
@@ -392,7 +392,9 @@ export function GuestList({ eventId, initialGuests, searchInputId }: GuestListPr
           <p className="text-gray-400 text-lg">No matching guests found</p>
         </div>
       )}
-
+      <ToastContainer
+        position="bottom-right"
+      />
       <GuestModal
         isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setSelectedGuest(null); }}
@@ -407,7 +409,14 @@ export function GuestList({ eventId, initialGuests, searchInputId }: GuestListPr
             }
             return g;
           });
-
+          const updatedFilteredGuests = filteredGuests.map(g => {
+            if (g.id === updatedGuest.id) {
+              guestExists = true;
+              return updatedGuest;
+            }
+            return g;
+          });
+          
           if (!guestExists) {
             updatedGuests.push(updatedGuest);
           }
@@ -415,10 +424,8 @@ export function GuestList({ eventId, initialGuests, searchInputId }: GuestListPr
           const searchInput = document.getElementById(searchInputId) as HTMLInputElement;
           if (searchInput) {
             searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-          } else {
-            setFilteredGuests(updatedGuests);
           }
-
+          setFilteredGuests(updatedFilteredGuests);
           setGuests(updatedGuests);
           setIsModalOpen(false);
           setSelectedGuest(null);
