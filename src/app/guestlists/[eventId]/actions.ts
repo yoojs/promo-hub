@@ -123,3 +123,36 @@ export async function importGuestList(eventId: string, csvContent: string) {
 
   revalidatePath(`/guestlists/${eventId}`)
 }
+
+export async function deleteGuest(eventId: string, guestId: string) {
+  const supabase = await createClient();
+
+  // Get current event data
+  const { data: event } = await supabase
+    .from('events')
+    .select('guests')
+    .eq('id', eventId)
+    .single();
+
+  if (!event?.guests) {
+    throw new Error('Event or guests not found');
+  }
+
+  // Create new guests object without the deleted guest
+  const updatedGuests = { ...event.guests };
+  delete updatedGuests[guestId];
+
+  // Update the event with new guests object
+  const { error } = await supabase
+    .from('events')
+    .update({ guests: updatedGuests })
+    .eq('id', eventId);
+
+  if (error) {
+    console.error('Error deleting guest:', error);
+    throw new Error('Failed to delete guest');
+  }
+
+  revalidatePath(`/guestlists/${eventId}`);
+  return { success: true };
+}

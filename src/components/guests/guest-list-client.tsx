@@ -114,6 +114,7 @@ export function GuestList({ eventId, initialGuests, searchInputId }: GuestListPr
   const isAdminOrPromoter = profile?.role === 'admin' || profile?.role === 'promoter';
 
   const handleOpenModal = (guest: Guest) => {
+    
     setSelectedGuest(guest);
     setIsModalOpen(true);
   };
@@ -400,33 +401,42 @@ export function GuestList({ eventId, initialGuests, searchInputId }: GuestListPr
         onClose={() => { setIsModalOpen(false); setSelectedGuest(null); }}
         eventId={eventId}
         guest={selectedGuest}
-        onSuccess={(updatedGuest: Guest) => {
-          let guestExists = false;
-          const updatedGuests = guests.map(g => {
-            if (g.id === updatedGuest.id) {
-              guestExists = true;
-              return updatedGuest;
-            }
-            return g;
-          });
-          const updatedFilteredGuests = filteredGuests.map(g => {
-            if (g.id === updatedGuest.id) {
-              guestExists = true;
-              return updatedGuest;
-            }
-            return g;
-          });
-          
-          if (!guestExists) {
-            updatedGuests.push(updatedGuest);
+        onSuccess={(updatedGuest: Guest, type: string) => {
+          // Create state update function for both guests and filteredGuests
+          const updateBothGuestLists = (updateFn: (prevGuests: Guest[]) => Guest[]) => {
+            setGuests(updateFn);
+            setFilteredGuests(updateFn);
+          };
+
+          switch (type) {
+            case 'update':
+              updateBothGuestLists(prevGuests => 
+                prevGuests.map(guest => 
+                  guest.id === updatedGuest.id ? updatedGuest : guest
+                )
+              );
+              break;
+
+            case 'add':
+              updateBothGuestLists(prevGuests => [...prevGuests, updatedGuest]);
+              break;
+
+            case 'delete':
+              updateBothGuestLists(prevGuests => 
+                prevGuests.filter(guest => guest.id !== updatedGuest.id)
+              );
+              break;
+
+            default:
+              console.warn('Unknown operation type:', type);
           }
 
+          // Refresh search if there's an active search query
           const searchInput = document.getElementById(searchInputId) as HTMLInputElement;
-          if (searchInput) {
+          if (searchInput?.value) {
             searchInput.dispatchEvent(new Event('input', { bubbles: true }));
           }
-          setFilteredGuests(updatedFilteredGuests);
-          setGuests(updatedGuests);
+          
           setIsModalOpen(false);
           setSelectedGuest(null);
         }}

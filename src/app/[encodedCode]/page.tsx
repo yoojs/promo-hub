@@ -3,6 +3,8 @@ import { createClient } from '@/utils/supabase/server';
 import { decodeInviteData } from '@/utils/encoding';
 import { format } from 'date-fns';
 import { InviteForm } from './invite-form';
+import Image from 'next/image';
+
 
 export default async function InvitePage({ params }: { params: Promise<{ encodedCode: string }> }) {
     const {encodedCode} = await params;
@@ -41,6 +43,21 @@ export default async function InvitePage({ params }: { params: Promise<{ encoded
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a1d24] to-[#2a2d35] flex items-center justify-center p-4">
       <div className="bg-[#2a2d35] rounded-lg shadow-xl p-8 max-w-md w-full">
+        <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+            {event.image_url ? (
+                <Image
+                    src={event.image_url}
+                    alt={event.name || 'Event'}
+                    className="object-cover w-full h-full"
+                />
+            ) : (
+                <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+                    <span className="text-white text-xl font-bold">
+                        {event.name?.charAt(0) || '?'}
+                    </span>
+                </div>
+            )}
+        </div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">{event.name}</h1>
           <p className="text-gray-300 text-lg mb-1">

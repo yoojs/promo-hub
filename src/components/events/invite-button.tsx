@@ -35,7 +35,7 @@ export function InviteButton({ eventId, promoterId }: InviteButtonProps) {
   return (
     <><button
           onClick={handleCopyInviteLink}
-          className="mt-2 w-46 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+          className="mt-2 lg:w-46 w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
       >
           Copy Invite Link
       </button><ToastContainer /></>

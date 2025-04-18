@@ -86,7 +86,7 @@ export default function VenueDetailPage({ params }: { params: Promise<{ venueId:
                 </div>
                 )}
             </div>
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex md:flex-row flex-col justify-between items-start mb-6">
                 
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">{venue.name}</h1>
@@ -98,7 +98,7 @@ export default function VenueDetailPage({ params }: { params: Promise<{ venueId:
               {profile?.role === 'admin' && (
                 <Link
                   href={`/venues/${venueId}/edit`}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Edit Venue
                 </Link>

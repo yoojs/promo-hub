@@ -33,7 +33,6 @@ export function Navigation() {
   const { data: profile, isLoading: profileLoading } = useProfile(); // Get profile data
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // const isActive = (path: string) => pathname === path
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -43,7 +42,7 @@ export function Navigation() {
   const handleSignIn = async () => {
     router.push('/login'); // Redirect to login after sign out
     setIsMobileMenuOpen(false); // Close menu on sign out
-  }
+  };
   const navItems = [
     { href: '/promoters', label: 'Promoters' },
     { href: '/venues', label: 'Venues' },
@@ -63,8 +62,8 @@ export function Navigation() {
   const NavLink = ({ href, label }: { href: string; label: string }) => (
     <Link
       href={href}
-      onClick={() => setIsMobileMenuOpen(false)} // Close menu on link click
-      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+      onClick={() => setIsMobileMenuOpen(false)}
+      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${
         pathname === href
           ? 'text-white border-b-2 border-blue-500'
           : 'text-gray-300 hover:text-white hover:bg-white/5'
@@ -79,37 +78,53 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Brand */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="text-white font-bold text-xl">
-              PromoHub {/* Or your logo component */}
+              PromoHub
             </Link>
           </div>
 
           {/* Desktop Navigation Links (Hidden on Mobile) */}
-          <div className="hidden lg:block">
-            <div className="ml-10 flex items-baseline space-x-4">
+          <div className="hidden lg:flex lg:items-center">
+            <div className="ml-10 flex items-center space-x-4">
               {navItems.map((item) => (
                 <NavLink key={item.href} href={item.href} label={item.label} />
               ))}
+              <div className="border-l border-gray-700 h-6 mx-4"></div>
+              {/* Display user info if available */}
+              {profile && !profileLoading && (
+                <div className="flex items-center px-5">
+                  <div className="flex flex-col justify-center">
+                    <div className="text-base font-medium leading-none text-white">
+                      {profile.full_name || 'User'}
+                    </div>
+                    <div className="text-sm font-medium text-gray-400">
+                      {profile.role}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
               {/* Desktop Account/Sign Out */}
-              <div className="ml-4 relative">
-                 {/* You might want a dropdown here for account settings */}
-                 {profile && <button
+              <div className="ml-4 flex items-center">
+                {profile && (
+                  <button
                     onClick={handleSignOut}
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                 >
+                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center"
+                  >
                     Sign Out
-                 </button>}
-                 {!profile && 
+                  </button>
+                )}
+                {!profile && (
                   <button
                     onClick={handleSignIn}
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white flex items-center"
                   >
                     Login
                   </button>
-                 }
+                )}
               </div>
-            </div>
+              
           </div>
 
           {/* Mobile Menu Button (Visible on Mobile) */}
@@ -128,7 +143,6 @@ export function Navigation() {
       </div>
 
       {/* Mobile Menu (Dropdown) */}
-      {/* Use transition classes for smooth opening/closing */}
       <div
         className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
           isMobileMenuOpen ? 'max-h-screen border-t border-gray-700' : 'max-h-0'
@@ -140,8 +154,8 @@ export function Navigation() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setIsMobileMenuOpen(false)} // Close menu on link click
-              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${
                 pathname === item.href
                   ? 'bg-gray-900 text-white'
                   : 'text-gray-300 hover:bg-gray-700 hover:text-white'
@@ -152,32 +166,34 @@ export function Navigation() {
           ))}
           {/* Mobile Account/Sign Out */}
           <div className="pt-4 pb-3 border-t border-gray-700">
-             {/* Display user info if available */}
-             {profile && !profileLoading && (
-                <div className="flex items-center px-5 mb-3">
-                   <div className="ml-3">
-                      <div className="text-base font-medium leading-none text-white">{profile.full_name || 'User'}</div>
-                   </div>
+            {/* Display user info if available */}
+            {profile && !profileLoading && (
+              <div className="flex items-center px-5 mb-3">
+                <div className="flex flex-col justify-center">
+                  <div className="text-base font-medium leading-none text-white">
+                    {profile.full_name || 'User'}
+                  </div>
                 </div>
-             )}
-             <div className="mt-3 px-2 space-y-1">
-                {/* Add mobile-specific account links if needed */}
-                {/* <Link href="/account" ...>Your Profile</Link> */}
-                {profile && <button
-                    onClick={handleSignOut}
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                 >
-                    Sign Out
-                 </button>}
-                 {!profile && 
-                  <button
-                    onClick={handleSignIn}
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                  >
-                    Login
-                  </button>
-                 }
-             </div>
+              </div>
+            )}
+            <div className="mt-3 px-2 space-y-1">
+              {profile && (
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                >
+                  Sign Out
+                </button>
+              )}
+              {!profile && (
+                <button
+                  onClick={handleSignIn}
+                  className="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                >
+                  Login
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

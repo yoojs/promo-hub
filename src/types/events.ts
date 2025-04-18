@@ -1,13 +1,14 @@
 export interface Guest {
   id: string;
-  name: string;
+  full_name: string;
   email: string;
   phone?: string;
-  number_of_guests: number;
+  instagram?: string;
   notes?: string;
-  status: 'pending' | 'confirmed' | 'checked_in' | 'cancelled';
-  created_at: string;
-  updated_at: string;
+  status?: 'pending' | 'confirmed' | 'checked_in' | 'cancelled';
+  created_at?: string;
+  updated_at?: string;
+  host_guest?: string;
 }
 
 export interface Event {
@@ -23,3 +24,11 @@ export interface Event {
   image_url?: string;
   created_by: string;
 } 
+
+export interface AdditionalGuest {
+  full_name: string;
+  email?: string;
+  phone: string;
+  instagram?: string;
+  host_guest?: string;
+}

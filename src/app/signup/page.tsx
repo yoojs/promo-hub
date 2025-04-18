@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import { PostgrestError } from '@supabase/supabase-js'
 
 export default function SignupPage() {
@@ -48,6 +48,7 @@ export default function SignupPage() {
       setLoading(false)
     }
   }
+  return notFound();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#1a1d24] bg-cover bg-center bg-no-repeat">

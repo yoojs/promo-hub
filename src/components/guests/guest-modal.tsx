@@ -1,19 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog } from '@headlessui/react';
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ToastContainer, toast } from 'react-toastify';
 import { Guest } from './guest-list-client';
 import { getProfile } from '@/app/account/actions';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useProfile } from '@/hooks/use-profile';
-
 interface GuestModalProps {
   isOpen: boolean;
   onClose: () => void;
   eventId: string;
   guest?: Guest | null;
-  onSuccess: (guest: Guest) => void;
+  onSuccess: (guest: Guest, type: string) => void;
 }
 
 interface FormData {
@@ -54,7 +53,40 @@ export function GuestModal({ isOpen, onClose, eventId, guest, onSuccess }: Guest
       [id]: value
     }));
   };
-
+  const handleDelete = async () => {
+    setIsLoading(true);
+    try {
+      const supabase = createClientComponentClient();
+      const { data: eventData, error: eventError } = await supabase
+      .from('events')
+      .select('guests')
+      .eq('id', eventId)
+      .single();
+      if (eventError) throw eventError;
+      if (!guest?.id) throw new Error('Guest ID is required');
+      // Remove the guest from the event's guests list
+      const updatedGuests = { ...eventData?.guests };
+      delete updatedGuests[guest.id];
+      // Update the event with the new guests list
+      const { error } = await supabase
+        .from('events')
+        .update({
+          guests: updatedGuests,
+        })
+        .eq('id', eventId);
+      if (error) throw error;
+      // Call onSuccess with the updated guest list
+      onSuccess(guest as Guest, 'delete');
+      toast.success('Guest deleted successfully!');
+      onClose();
+    }
+    catch (error) {
+      console.error('Error deleting guest:', error);
+      toast.error(`Failed to delete guest: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   // Renamed function to handle both reject and unreject
   const handleRejectToggle = async () => {
     // Note is required only when rejecting, not unrejecting
@@ -115,7 +147,7 @@ export function GuestModal({ isOpen, onClose, eventId, guest, onSuccess }: Guest
       }
 
       // Call onSuccess with the full updated guest object
-      onSuccess(updatedGuestData as Guest);
+      onSuccess(updatedGuestData as Guest, 'update');
       toast.success(successMessage);
       onClose();
     } catch (error) {
@@ -167,7 +199,7 @@ export function GuestModal({ isOpen, onClose, eventId, guest, onSuccess }: Guest
 
         if (error) throw error;
 
-        onSuccess(updatedGuestData);
+        onSuccess(updatedGuestData, 'update');
         toast.success('Guest updated successfully!');
       } else {
         // Create new guest
@@ -198,7 +230,7 @@ export function GuestModal({ isOpen, onClose, eventId, guest, onSuccess }: Guest
 
         if (error) throw error;
 
-        onSuccess(newGuest);
+        onSuccess(newGuest, 'add');
         toast.success('Guest added successfully!');
       }
       onClose();
@@ -215,11 +247,23 @@ export function GuestModal({ isOpen, onClose, eventId, guest, onSuccess }: Guest
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="bg-[#262b36] rounded-lg p-6 w-full max-w-md">
-          <Dialog.Title className="text-2xl font-bold text-white mb-4">
-            {guest ? 'Edit Guest' : 'Add Guest'}
-          </Dialog.Title>
-
+        <DialogPanel className="bg-[#262b36] rounded-lg p-6 w-full max-w-md">
+          <DialogTitle className="flex justify-between items-center text-2xl font-bold text-white mb-4">
+            <div>            
+              {guest ? 'Edit Guest' : 'Add Guest'}
+            </div>
+            {
+              isAdminOrPromoter && guest && (
+              <button
+                type="button"
+                className="px-4 py-2 text-xs bg-red-500 bg-white-300 rounded-md hover:bg-red-700 transition-colors"
+                onClick={handleDelete}
+                >
+                  Delete Guest
+                </button>
+            )}  
+          </DialogTitle>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* ... form fields remain the same ... */}
              <div>
@@ -325,10 +369,12 @@ export function GuestModal({ isOpen, onClose, eventId, guest, onSuccess }: Guest
                 >
                   {isLoading ? 'Saving...' : 'Save'}
                 </button>
+                
               )}
+
             </div>
           </form>
-        </Dialog.Panel>
+        </DialogPanel>
       </div>
       <ToastContainer
         position="bottom-right"

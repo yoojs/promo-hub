@@ -13,7 +13,7 @@ import { getProfile } from '@/app/account/actions';
 import { Profile } from '@/types/profiles'; // <-- Import Profiles type if not already
 import { DeleteEventDialog } from '@/components/events/delete-event-dialog';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
+import { ToastContainer, toast } from 'react-toastify';
 import Image from 'next/image';
 interface EventDetailPageProps {
     eventId: string;
@@ -239,6 +239,7 @@ export default function EventDetailPage({ params }: {params: Promise<EventDetail
         onSave={handleSaveSuccess} // Pass the success handler
         loading={modalLoading}
       />
+      <ToastContainer position="bottom-right"/>
     </>
   );
 }

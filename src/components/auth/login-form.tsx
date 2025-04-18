@@ -2,7 +2,7 @@
 
 import { login } from '@/app/login/actions'
 import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+// import Link from 'next/link'
 
 export function LoginForm() {
   const searchParams = useSearchParams()
@@ -61,14 +61,14 @@ export function LoginForm() {
           </button>
         </div>
         
-        <div className="mt-8 text-center">
+        {/* <div className="mt-8 text-center">
           <p className="text-sm text-gray-400">
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium">
               Sign up
             </Link>
           </p>
-        </div>
+        </div> */}
       </form>
     </div>
   )

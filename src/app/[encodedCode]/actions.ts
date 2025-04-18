@@ -2,14 +2,15 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
-
 interface AddGuestData {
-  name: string;
-  phone: string;
-  email?: string;
-  instagram?: string;
-  eventId: string;
-  promoterId: string;
+    allGuests: {
+        full_name: string;
+        phone: string;
+        email?: string;
+        instagram?: string;
+    }[];
+    eventId: string;
+    promoterId: string;
 }
 export async function getEvent(eventId: string) {
     const supabase = await createClient();
@@ -38,7 +39,7 @@ export async function getPromoter(promoterId: string) {
     return data;
 }
 
-export async function addGuestToEvent(data: AddGuestData) {
+export async function addGuestsToEvent(data: AddGuestData) {
   const supabase = await createClient();
 
   try {
@@ -53,19 +54,29 @@ export async function addGuestToEvent(data: AddGuestData) {
       return { success: false, message: 'Event not found' };
     }
 
-    // Create new guest entry
-    const guestId = crypto.randomUUID();
-    const newGuest = {
-      id: guestId,
-      full_name: data.name.trim(),
-      phone: data.phone.trim(),
-      email: data.email?.trim() || '',
-      instagram: data.instagram?.trim() || '',
-      added_by: data.promoterId,
-      added_at: new Date().toISOString(),
-      checked_in: false,
-      rejected: false
-    };
+    // Create new guests entry
+    // const existingGuests = event.guests || {};
+    // const existingGuestIds = Object.keys(existingGuests);
+    // const newGuests = data.allGuests.filter(guest => !existingGuestIds.includes(guest.id));
+    // if (newGuests.length === 0) {
+    //     return { success: false, message: 'No new guests to add' };
+    // }
+    const newGuestsMap = data.allGuests.map((guest) => {
+        const guestId = crypto.randomUUID();
+        return {
+            ...guest,
+            id: guestId,
+            added_by: data.promoterId,
+            added_at: new Date().toISOString(),
+            checked_in: false,
+            rejected: false
+        }
+    });
+    const jsonObject: { [key: string]: typeof newGuestsMap[0] } = {};
+
+    newGuestsMap.forEach(item => {
+        jsonObject[item.id] = item;
+    });
 
     // Update event's guests
     const { error } = await supabase
@@ -73,7 +84,7 @@ export async function addGuestToEvent(data: AddGuestData) {
       .update({
         guests: {
           ...event.guests,
-          [guestId]: newGuest
+          ...jsonObject
         }
       })
       .eq('id', data.eventId);
