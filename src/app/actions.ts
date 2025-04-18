@@ -131,5 +131,50 @@ export async function getEvent(id: string) {
     ...data
   } as EventWithRelations
 }
+export async function getAllVenues() {
+  const supabase = await createClient()
 
-// ... existing code ... 
+  const { data: venues, error } = await supabase
+    .from('venues')
+    .select('*')
+
+  if (error) {
+    console.error('Error fetching venues:', error)
+    return []
+  }
+
+  return venues
+}
+export async function getVenues(page = 1) {
+  const supabase = await createClient()
+
+  const { data: venues, error, count } = await supabase
+    .from('venues')
+    .select(`
+      *,
+      events(*)
+    `, { count: 'exact' })
+    .range((page - 1) * 10, page * 10 - 1)
+
+  if (error) {
+    console.error('Error fetching venues:', error)
+    return { venues: [], total: 0 }
+  }
+
+  return { venues, total: count ?? 0 }
+}
+export async function getAllPromoters() {
+  const supabase = await createClient()
+
+  const { data: promoters, error } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .eq('role', 'promoter')
+
+  if (error) {
+    console.error('Error fetching promoters:', error)
+    return []
+  }
+
+  return promoters
+}

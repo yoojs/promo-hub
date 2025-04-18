@@ -18,7 +18,7 @@ export async function getProfile() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    throw new Error('Not authenticated')
+    return null;
   }
 
   const { data, error } = await supabase

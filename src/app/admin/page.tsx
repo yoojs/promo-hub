@@ -19,14 +19,8 @@ export default async function AdminPage() {
     `)
     .order('created_at', { ascending: false });
 
-  const { data: promoters, error: promotersError } = await supabase
-    .from('profiles')
-    .select('id, full_name')
-    .eq('role', 'promoter')
-    .order('full_name', { ascending: true });
-
-  if (venuesError || eventsError || promotersError) {
-    console.error('Error fetching data:', venuesError || eventsError || promotersError);
+  if (venuesError || eventsError) {
+    console.error('Error fetching data:', venuesError || eventsError);
     return <div>Error loading data</div>;
   }
 
@@ -54,8 +48,6 @@ export default async function AdminPage() {
             </div>
             <EventList 
               initialEvents={events || []} 
-              venues={venues || []} 
-              promoters={promoters || []}
             />
           </section>
         </div>

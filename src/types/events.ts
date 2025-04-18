@@ -15,8 +15,10 @@ export interface Event {
   name: string;
   date: string;
   start_time: string;
-  location?: string;
-  metadata?: {
-    guests?: Record<string, Guest>;
-  };
+  end_time: string;
+  description?: string;
+  venue_id: string;
+  promoters: string[];
+  guests?: Record<string, Guest>;
+  image_url?: string;
 } 

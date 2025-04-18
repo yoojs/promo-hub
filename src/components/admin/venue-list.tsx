@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { VenueModal } from './venue-modal';
+import { VenueModal } from '../venues/venue-modal';
 
 interface Venue {
   id: string;

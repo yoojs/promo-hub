@@ -1,6 +1,6 @@
 import { Navigation } from './navigation'
 
-export async function NavigationWrapper() {
+export function NavigationWrapper() {
 
   return <Navigation />
 } 

@@ -19,6 +19,25 @@ export async function getEvents() {
   return data as Event[]
 }
 
+// New function to get a single event by its ID
+export async function getEventById(eventId: string): Promise<Event | null> {
+  if (!eventId) return null;
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('id', eventId)
+    .single() // Use .single() to get one record or null
+
+  if (error) {
+    console.error(`Error fetching event with ID ${eventId}:`, error)
+    return null
+  }
+
+  return data as Event | null
+}
+
 export async function createEvent(eventData: Omit<Event, 'id'>) {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -67,4 +86,4 @@ export async function deleteEvent(eventId: string) {
   }
 
   revalidatePath('/events')
-} 
+}

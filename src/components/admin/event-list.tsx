@@ -2,46 +2,14 @@
 
 import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { EventModal } from './event-modal';
-
-interface Venue {
-  id: string;
-  name: string;
-}
-
-interface Promoter {
-  id: string;
-  full_name: string;
-}
-
-interface Event {
-  id: string;
-  name: string;
-  description: string | null;
-  date: string;
-  start_time: string;
-  end_time: string;
-  venue_id: string;
-  venue: Venue;
-  guests: {
-    [key: string]: {
-      name: string;
-      email: string;
-      status: 'confirmed' | 'pending' | 'declined';
-    };
-  };
-  promoters: string[]; // Array of promoter IDs
-  created_at: string;
-  updated_at: string;
-}
+import { EventModal } from '../events/event-modal';
+import { Event } from '@/types/events';
 
 interface EventListProps {
   initialEvents: Event[];
-  venues: Venue[];
-  promoters: Promoter[];
 }
 
-export function EventList({ initialEvents, venues, promoters }: EventListProps) {
+export function EventList({ initialEvents }: EventListProps) {
   const [events, setEvents] = useState(initialEvents);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -221,8 +189,6 @@ export function EventList({ initialEvents, venues, promoters }: EventListProps) 
         }}
         onSave={handleSaveEvent}
         event={selectedEvent}
-        venues={venues}
-        promoters={promoters}
         loading={loading}
       />
     </div>

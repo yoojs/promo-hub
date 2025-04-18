@@ -11,7 +11,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#1a1d24] flex items-center justify-center">
       <div className="bg-[#262b36] p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6">Welcome to WeOut</h1>
+        <h1 className="text-2xl font-bold text-white mb-6">Welcome to PromoHub</h1>
         
         {error && (
           <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-md">
