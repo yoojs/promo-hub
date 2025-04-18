@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Dialog } from '@headlessui/react';
-import { toast } from 'react-hot-toast';
+import { ToastContainer, toast } from 'react-toastify';
 import { Guest } from './guest-list-client';
 import { getProfile } from '@/app/account/actions';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -330,6 +330,10 @@ export function GuestModal({ isOpen, onClose, eventId, guest, onSuccess }: Guest
           </form>
         </Dialog.Panel>
       </div>
+      <ToastContainer
+        position="bottom-right"
+      />
     </Dialog>
+    
   );
 }

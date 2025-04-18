@@ -8,10 +8,13 @@ import { NavigationWrapper } from '@/components/navigation-wrapper';
 import { EventModal } from '@/components/events/event-modal'; // <-- Import your EventModal component
 import { Event } from '@/types/events'; // <-- Import Event type if not already
 import { use } from 'react';
-import { updateEvent } from '../actions';
+import { updateEvent, deleteEvent } from '../actions';
 import { getProfile } from '@/app/account/actions';
 import { Profile } from '@/types/profiles'; // <-- Import Profiles type if not already
-
+import { DeleteEventDialog } from '@/components/events/delete-event-dialog';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+import Image from 'next/image';
 interface EventDetailPageProps {
     eventId: string;
 }
@@ -28,7 +31,13 @@ export default function EventDetailPage({ params }: {params: Promise<EventDetail
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [profileData, setProfileData] = useState<Profile | null>(null); // Adjust type as needed
-  // See if user exists
+
+  // State for delete dialog
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const router = useRouter();
+
   // Fetch data on the client side
   useEffect(() => {
     async function fetchEvent() {
@@ -76,7 +85,8 @@ export default function EventDetailPage({ params }: {params: Promise<EventDetail
         end_time: updatedEvent.end_time,
         venue_id: updatedEvent.venue_id,
         image_url: updatedEvent.image_url,
-        promoters: updatedEvent.promoters
+        promoters: updatedEvent.promoters,
+        created_by: updatedEvent.created_by,
       }
       setEvent(newEvent); // Update local state immediately
       updateEvent(eventId, newEvent); // Call the function to update the event in the database
@@ -87,6 +97,22 @@ export default function EventDetailPage({ params }: {params: Promise<EventDetail
     }
     // Optionally, refresh server data if needed, though updating local state might be enough
     // router.refresh();
+  };
+
+  // Handle delete event
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteEvent(eventId);
+      toast.success('Event deleted successfully');
+      router.push('/events'); // Redirect to events list
+    } catch (error) {
+      toast.error('Failed to delete event');
+      console.error('Error deleting event:', error);
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
   };
 
   // Handle loading state
@@ -119,14 +145,30 @@ export default function EventDetailPage({ params }: {params: Promise<EventDetail
      );
   }
 
-
   return (
     <> {/* Use Fragment */}
       <div className="min-h-screen bg-[#1a1d24] text-white">
         <NavigationWrapper />
         <div className="container mx-auto px-4 py-12">
           <div className="bg-[#2a2d35] rounded-lg shadow-xl p-8 max-w-4xl mx-auto">
+          <div className="relative w-full h-48 mb-2 rounded-lg overflow-hidden">
+                {event.image_url ? (
+                    <Image
+                    src={event.image_url}
+                    alt={event.name || 'Event'}
+                    fill
+                    className="object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+                    <span className="text-white text-xl font-bold">
+                        {event.name?.charAt(0) || '?'}
+                    </span>
+                    </div>
+                )}
+            </div>
             <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+              
               <div>
                 <h1 className="text-3xl font-bold mb-2">{event.name}</h1>
                 <p className="text-gray-400 text-md">
@@ -138,10 +180,23 @@ export default function EventDetailPage({ params }: {params: Promise<EventDetail
                    {/* Use your Button component */}
                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">View Guestlist</button>
                  </Link>
-                 {/* Replace Link with Button to open modal */}
-                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" onClick={() => setIsModalOpen(true)}>
-                   Edit Event
-                 </button>
+                 {/* Show edit/delete buttons only for admin or event creator */}
+                 {(profileData?.role === 'admin' || event.created_by === profileData?.id) && (
+                   <>
+                     <button 
+                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                       onClick={() => setIsModalOpen(true)}
+                     >
+                       Edit Event
+                     </button>
+                     <button
+                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                       onClick={() => setIsDeleteDialogOpen(true)}
+                     >
+                       Delete Event
+                     </button>
+                   </>
+                 )}
               </div>}
             </div>
 
@@ -166,6 +221,17 @@ export default function EventDetailPage({ params }: {params: Promise<EventDetail
           </div>
         </div>
       </div>
+
+      {/* Add the delete dialog */}
+      <DeleteEventDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        eventName={event?.name || ''}
+        loading={isDeleting}
+      />
+      
+      {/* Existing EventModal */}
       <EventModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

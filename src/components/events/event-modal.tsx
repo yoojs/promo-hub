@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Event } from '@/types/events';
+import { Profile } from '@/types/profiles';
 import { getAllVenues, getAllPromoters } from '@/app/actions';
+import { getProfile } from '@/app/account/actions';
+
 interface Venue {
   id: string;
   name: string;
@@ -32,6 +35,7 @@ export function EventModal({ isOpen, onClose, onSave, event, loading }: EventMod
   const [selectedPromoterIds, setSelectedPromoterIds] = useState<string[]>([]);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [promoters, setPromoters] = useState<Promoter[]>([]);
+  const [profileData, setProfileData] = useState<Profile | null >(null); 
   useEffect(() => {
     const fetchVenues = async () => {
       const venues = await getAllVenues();
@@ -43,6 +47,14 @@ export function EventModal({ isOpen, onClose, onSave, event, loading }: EventMod
       setPromoters(promoters);
     }
     fetchPromoters();
+    const fetchProfile = async () => {
+      const profile = await getProfile();
+      if (profile) {
+        setProfileData(profile);
+      }
+    }
+    fetchProfile();
+    
     if (event) {
       setName(event.name);
       setDescription(event.description || '');
@@ -73,12 +85,13 @@ export function EventModal({ isOpen, onClose, onSave, event, loading }: EventMod
     e.preventDefault();
     await onSave({ 
       name, 
-      description: description, 
+      description, 
       date, 
       start_time: startTime,
       end_time: endTime,
       venue_id: venueId,
-      promoters: selectedPromoterIds
+      promoters: selectedPromoterIds,
+      created_by: profileData?.id || '', // Use profileData to get the user ID
     });
   };
 

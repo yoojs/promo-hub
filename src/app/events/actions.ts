@@ -74,16 +74,18 @@ export async function updateEvent(eventId: string, eventData: Partial<Event>) {
 }
 
 export async function deleteEvent(eventId: string) {
-  const supabase = await createClient()
+  const supabase = await createClient();
+  
   const { error } = await supabase
     .from('events')
     .delete()
-    .eq('id', eventId)
+    .eq('id', eventId);
 
   if (error) {
-    console.error('Error deleting event:', error)
-    throw error
+    console.error('Error deleting event:', error);
+    throw new Error('Failed to delete event');
   }
 
-  revalidatePath('/events')
+  revalidatePath('/events');
+  return true;
 }

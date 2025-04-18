@@ -21,4 +21,5 @@ export interface Event {
   promoters: string[];
   guests?: Record<string, Guest>;
   image_url?: string;
+  created_by: string;
 } 

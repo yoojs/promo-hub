@@ -122,6 +122,22 @@ export default function VenueDetailPage({ params }: { params: Promise<{ venueId:
                       className="block group"
                     >
                       <div className="bg-[#1a1d24] rounded-lg p-6 hover:bg-[#1e2128] transition-colors">
+                        <div className="relative w-full h-48 mb-2 rounded-lg overflow-hidden">
+                            {event.image_url ? (
+                                <Image
+                                src={event.image_url}
+                                alt={event.name || 'Event'}
+                                fill
+                                className="object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+                                <span className="text-white text-xl font-bold">
+                                    {event.name?.charAt(0) || '?'}
+                                </span>
+                                </div>
+                            )}
+                        </div>
                         <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-blue-400">
                           {event.name}
                         </h3>
